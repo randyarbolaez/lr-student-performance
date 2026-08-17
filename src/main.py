@@ -2,6 +2,7 @@ import pandas as pd
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 df = pd.read_csv("./student_performance_dataset.csv")
 df.info()
@@ -43,7 +44,7 @@ for i,col in enumerate(cat_features):
     ax[x,y].yaxis.label.set_size(15)
 
 plt.tight_layout()    
-plt.show()
+# plt.show()
 
 
 ########### Final Exam Score vs Numerical Features Bivariate Analysis
@@ -65,7 +66,6 @@ plt.suptitle("Final Exam Score vs Numerical Features", size=20)
 
 ########### Final Exam Score vs Categorical Features Bivariate Analysis
 fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(10,10), dpi=90)
-target = 'final_exam_score'
 c = '#0055ff'
 
 print(df.groupby(["parental_education"]).size())
@@ -78,6 +78,15 @@ for i in range(len(cat_features)):
     axes[i].set_ylabel(target, size=12)
     axes[i].grid()
 
-# plt.suptitle("Final Exam Score vs Categorical Features", size=20)
-# plt.tight_layout()
+plt.suptitle("Final Exam Score vs Categorical Features", size=20)
+plt.tight_layout()
 # plt.show()
+
+df = pd.get_dummies(df, columns=cat_features, drop_first=True)
+print(df)
+
+# correlation analysis
+cmap = sns.diverging_palette(125, 28, s=100, l=65, sep=50, as_cmap=True)
+fig,ax = plt.subplots(figsize=(9,8), dpi=80)
+ax = sns.heatmap(pd.concat([df.drop(target,axis=1), df[target]],axis=1).corr(), annot=True, cmap=cmap)
+plt.show()
