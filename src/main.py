@@ -2,6 +2,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+import numpy as np
 
 df = pd.read_csv("./student_performance_dataset.csv")
 df.info()
@@ -82,10 +85,28 @@ plt.tight_layout()
 # plt.show()
 
 df = pd.get_dummies(df, columns=cat_features, drop_first=True)
-print(df)
+# print(df)
 
 # correlation analysis
 cmap = sns.diverging_palette(125, 28, s=100, l=65, sep=50, as_cmap=True)
 fig,ax = plt.subplots(figsize=(9,8), dpi=80)
 ax = sns.heatmap(pd.concat([df.drop(target,axis=1), df[target]],axis=1).corr(), annot=True, cmap=cmap)
 plt.show()
+
+X = df.drop('final_exam_score', axis=1)
+y = df['final_exam_score']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+
+y_test_actual = y_test
+
+#normalize dataset
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+linear_reg = LinearRegression()
+linear_reg.fit(X_train_scaled, y_train)
+intercept_and_coefficients = pd.DataFrame(data = np.append(linear_reg.intercept_, linear_reg.coef_), index = ['Intercept'] +[col+' Coef. ' for col in X.columns], columns=[''
+'Value']).sort_values("Value", ascending=False)
